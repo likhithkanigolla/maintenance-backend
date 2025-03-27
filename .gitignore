@@ -44,3 +44,4 @@ coverage.xml
 # Local development
 local_settings.py
 db.sqlite3
+.env
