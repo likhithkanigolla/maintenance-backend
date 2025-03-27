@@ -70,7 +70,7 @@ def get_vertical_names():
     result = execute_query(query)
     return [row["vertical_name"] for row in result if row["vertical_name"]]
 
-@app.get("/dead_nodes/by_vertical")
+@app.get("/node_status_by_vertical")
 def get_dead_nodes_by_vertical(
     vertical_name: str,
     hours: int = Query(3, description="Time interval in hours")
@@ -80,7 +80,6 @@ def get_dead_nodes_by_vertical(
     SELECT * FROM public.dead_nodes
     WHERE vertical_name = %s
     AND timestamp >= NOW() - INTERVAL '%s hours'
-    AND status = 'Inactive'
     ORDER BY id DESC
     LIMIT 100
     """
