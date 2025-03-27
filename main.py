@@ -50,7 +50,7 @@ def execute_query(query, params=None):
 def read_root():
     return {"message": "Welcome to Maintenance Backend API"}
 
-@app.get("/dead_nodes/latest")
+@app.get("/get_node_status")
 def get_latest_dead_node(node_id: str):
     """Get the latest dead node by node_id"""
     query = """
@@ -63,7 +63,7 @@ def get_latest_dead_node(node_id: str):
         raise HTTPException(status_code=404, detail=f"No data found for node_id: {node_id}")
     return result[0]
 
-@app.get("/dead_nodes/verticals")
+@app.get("/verticals")
 def get_vertical_names():
     """Get all distinct vertical names from dead_nodes"""
     query = "SELECT DISTINCT vertical_name FROM public.dead_nodes"
@@ -75,15 +75,20 @@ def get_dead_nodes_by_vertical(
     vertical_name: str,
     hours: int = Query(3, description="Time interval in hours")
 ):
-    """Get recent dead nodes by vertical_name within a time interval"""
+    """
+    Get recent dead nodes by vertical_name prefix within a time interval.
+    Supports partial matching - e.g., 'WN' will return data for all verticals starting with 'WN'
+    """
     query = """
     SELECT * FROM public.dead_nodes
-    WHERE vertical_name = %s
+    WHERE vertical_name LIKE %s
     AND timestamp >= NOW() - INTERVAL '%s hours'
     ORDER BY id DESC
     LIMIT 100
     """
-    result = execute_query(query, (vertical_name, hours))
+    # Add wildcard character to end of the vertical name for partial matching
+    pattern = f"{vertical_name}%"
+    result = execute_query(query, (pattern, hours))
     return result
 
 @app.get("/outlier_data")
