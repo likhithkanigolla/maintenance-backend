@@ -80,6 +80,7 @@ def get_dead_nodes_by_vertical(
     SELECT * FROM public.dead_nodes
     WHERE vertical_name = %s
     AND timestamp >= NOW() - INTERVAL '%s hours'
+    AND status = 'Inactive'
     ORDER BY id DESC
     LIMIT 100
     """
